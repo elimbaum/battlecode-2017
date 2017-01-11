@@ -1,4 +1,4 @@
-// :)
+// Another edit to please eli
 package ConnorTesting;
 import battlecode.common.*;
 
