@@ -1,3 +1,4 @@
+// vv Less good bot below vv
 package helloworldeli;
 import battlecode.common.*;
 
