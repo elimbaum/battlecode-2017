@@ -9,6 +9,16 @@ public strictfp class RobotPlayer {
 	{
 		RobotPlayer.rc = rc;
 		
+		TreeInfo[] trees = rc.senseNearbyTrees();
+		for(TreeInfo t : trees)
+		{
+			// shake own and neutral trees
+			if (t.team != rc.getTeam().opponent() && rc.canShake(t.ID))
+			{
+				rc.shake(t.ID);
+			}
+		}
+		
 		switch(rc.getType())
 		{
 			case ARCHON:
@@ -84,11 +94,6 @@ public strictfp class RobotPlayer {
 						rc.water(t.ID);
 						//System.out.println("Watered " + t.ID);
 					}
-					if (rc.canShake(t.ID))
-					{
-						rc.shake(t.ID);
-						//System.out.println("Shook " + t.ID);
-					}
 				}
 				
 				if(rc.canMove(dir))
@@ -127,7 +132,6 @@ public strictfp class RobotPlayer {
 						rc.fireTriadShot(dir);
 						dir.rotateLeftDegrees(15);
 					}
-					
 				}
 				else
 				{
