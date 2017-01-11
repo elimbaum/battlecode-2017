@@ -1,5 +1,5 @@
 // :)
-package examplefuncsplayer;
+package ConnorTesting;
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
