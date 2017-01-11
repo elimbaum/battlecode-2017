@@ -1,7 +1,7 @@
 package helloworldeli;
 import battlecode.common.*;
 
-public class RobotPlayer {
+public strictfp class RobotPlayer {
 	static RobotController rc;
 	
 	public static void run(RobotController rc) throws GameActionException
@@ -14,7 +14,7 @@ public class RobotPlayer {
 				runArchon();
 				break;
 			case GARDENER:
-				runGardener();
+				//runGardener();
 				break;
 			case SOLDIER:
 				break;
@@ -55,33 +55,33 @@ public class RobotPlayer {
 		}
 	}
 	
-	static void runGardener() throws GameActionException
-	{
-		while (true)
-		{
-			try
-			{
-				Direction dir = randomDirection();
-				
-				if(rc.canMove(dir))
-				{
-					rc.move(dir);
-				}
-				
-				if(rc.canPlantTree(dir.opposite()))
-				{
-					rc.plantTree(dir.opposite());
-				}
-				
-				Clock.yield();
-			}
-			catch (Exception e)
-			{
-				System.out.println("Gardener died");
-				e.printStackTrace();
-			}
-		}
-	}
+//	static void runGardener() throws GameActionException
+//	{
+//		while (true)
+//		{
+//			try
+//			{
+//				Direction dir = randomDirection();
+//				
+//				if(rc.canMove(dir))
+//				{
+//					rc.move(dir);
+//				}
+//				
+//				if(rc.canPlantTree(dir.opposite()))
+//				{
+//					rc.plantTree(dir.opposite());
+//				}
+//				
+//				Clock.yield();
+//			}
+//			catch (Exception e)
+//			{
+//				System.out.println("Gardener died");
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 	
     static Direction randomDirection() {
         return new Direction((float)Math.random() * 2 * (float)Math.PI);
