@@ -77,17 +77,42 @@ public strictfp class RobotPlayer {
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
-
+            	
+            	// General self-info
+            	Team myTeam = rc.getTeam();
+            	RobotType myType = rc.getType();
+            	
                 // Listen for home archon's location
                 int xPos = rc.readBroadcast(0);
                 int yPos = rc.readBroadcast(1);
                 MapLocation archonLoc = new MapLocation(xPos,yPos);
-
-                // Generate a random direction
+                
+                // Water any nearby tree
+                TreeInfo trees[] = rc.senseNearbyTrees(myType.sensorRadius, myTeam);
+                Boolean didwater = false;
+                for (int i = 0; i < trees.length; i++)
+                {
+                	if (rc.canWater(trees[i].ID) && Math.random() < .5)
+                	{
+                		rc.water(trees[i].ID);
+                		didwater = true;
+                	}
+                }
+                if (didwater)
+                {
+                	Clock.yield();
+                	continue;
+                }
+                
+                // Otherwise generate a random direction
                 Direction dir = randomDirection();
-
-                // Randomly attempt to build a soldier or lumberjack in this direction
-                if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .1 && rc.isBuildReady()) {
+                
+                // Randomly attempt to build a tree or lumberjack in this direction
+                if (rc.canPlantTree(dir) && Math.random() < .1)
+                {
+                	rc.plantTree(dir);
+                }
+                else if (rc.canBuildRobot(RobotType.LUMBERJACK, dir) && Math.random() < .1 && rc.isBuildReady()) {
                     rc.buildRobot(RobotType.LUMBERJACK, dir);
                 }
 
@@ -168,8 +193,28 @@ public strictfp class RobotPlayer {
 
                         tryMove(toEnemy);
                     } else {
-                        // Move Randomly
-                        tryMove(randomDirection());
+                        // Check for nearby neutral tree
+                    	TreeInfo trees[] = rc.senseNearbyTrees();
+                    	Boolean didchop = false;
+                    	for (int i = 0; i < trees.length; i++)
+                    	{
+                    		if (trees[i].team == Team.NEUTRAL && rc.canChop(trees[i].ID))
+                			{
+                				rc.chop(trees[i].ID);
+                				didchop = true;
+                			}
+                    	}
+                    	if (didchop)
+                    	{
+                    		// Pass to yield
+                    	}
+                    	else
+                    	{
+                    		// Move Randomly
+                            tryMove(randomDirection());
+                    	}
+                    	
+                    	
                     }
                 }
 
