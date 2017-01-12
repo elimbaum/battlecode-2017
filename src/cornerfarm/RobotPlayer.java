@@ -74,7 +74,7 @@ public class RobotPlayer {
             	rc.broadcast(CH_ARCHON_X, (int)myLoc.x);
             	rc.broadcast(CH_ARCHON_Y, (int)myLoc.y);
             	
-            	if(rc.isBuildReady() && Math.random() < 0.001)
+            	if(rc.isBuildReady() && Math.random() < 0.01)
             	{
                 	dir = randomDirection();
                 	if (rc.canHireGardener(dir))
@@ -95,7 +95,8 @@ public class RobotPlayer {
         boolean newLocationRequest = false;
         
         MapLocation gridLoc = rc.getLocation();
-        gridLoc = gridLoc.translate(- (gridLoc.x % 5), - (gridLoc.y % 7));
+        gridLoc = gridLoc.translate(- (gridLoc.x % 5), - (gridLoc.y % 5));
+        MapLocation oldLoc = new MapLocation(gridLoc.x, gridLoc.y);
     	System.out.println("Initial: " + gridLoc.toString());
     	
     	while (true) {
@@ -128,10 +129,16 @@ public class RobotPlayer {
             		// Move towards archon
     				Direction moveDir = rc.getLocation().directionTo(archonLoc);
     				
-    				if(rc.canMove(moveDir))
+    				for(int i = 0; i < 30; i += 5)
     				{
-    					rc.move(moveDir);
+    					if(rc.canMove(moveDir))
+        				{
+        					rc.move(moveDir);
+        					break;
+        				}
     				}
+    				moveDir = moveDir.rotateRightDegrees(5);
+    				
             	}
             	else
             	{
@@ -142,6 +149,7 @@ public class RobotPlayer {
             				(rc.canSenseLocation(treeSpot) && rc.isLocationOccupiedByTree(treeSpot))) {
             			// need new location!
             			System.out.println(gridLoc);
+            			oldLoc = gridLoc;
             			gridLoc = gridLoc.translate(5 * (1 - (int) (Math.random() * 3)), 5 * (1 - (int) (Math.random() * 3)));
             			System.out.println(gridLoc);
             			newLocationRequest = false;
@@ -155,8 +163,8 @@ public class RobotPlayer {
             			}
             			else
             			{
-            				// TODO reset if not on the map
             				newLocationRequest = true;
+            				gridLoc = oldLoc;
             			}
             		}
             		      		
@@ -189,6 +197,8 @@ public class RobotPlayer {
                 		{
                 			rc.move(dir);
                 		}
+            			gridLoc = oldLoc;
+            			newLocationRequest = true;
             		}
             		
             	}
