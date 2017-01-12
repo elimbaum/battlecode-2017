@@ -9,11 +9,10 @@ public strictfp class RobotPlayer {
 	{
 		RobotPlayer.rc = rc;
 		
-		TreeInfo[] trees = rc.senseNearbyTrees();
+		TreeInfo[] trees = rc.senseNearbyTrees(-1, Team.NEUTRAL);
 		for(TreeInfo t : trees)
 		{
-			// shake own and neutral trees
-			if (t.team != rc.getTeam().opponent() && rc.canShake(t.ID))
+			if (rc.canShake(t.ID))
 			{
 				rc.shake(t.ID);
 			}
