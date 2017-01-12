@@ -74,7 +74,7 @@ public class RobotPlayer {
             	rc.broadcast(CH_ARCHON_X, (int)myLoc.x);
             	rc.broadcast(CH_ARCHON_Y, (int)myLoc.y);
             	
-            	if(rc.isBuildReady())
+            	if(rc.isBuildReady() && Math.random() < 0.001)
             	{
                 	dir = randomDirection();
                 	if (rc.canHireGardener(dir))
@@ -92,13 +92,12 @@ public class RobotPlayer {
     }
     
     static void runGardener() throws GameActionException {
-        boolean plsmove = true;
+        boolean newLocationRequest = false;
         
         MapLocation gridLoc = rc.getLocation();
-        gridLoc = gridLoc.translate(- (gridLoc.x % 5), - (gridLoc.y % 5));
-        gridLoc = gridLoc.translate(15 - (3 * (int) (10 * Math.random())),
-        							15 - (3 * (int) (10 * Math.random())));
-    	System.out.println(gridLoc);
+        gridLoc = gridLoc.translate(- (gridLoc.x % 5), - (gridLoc.y % 7));
+    	System.out.println("Initial: " + gridLoc.toString());
+    	
     	while (true) {
             try {
             	shakeTrees();
@@ -136,24 +135,50 @@ public class RobotPlayer {
             	}
             	else
             	{
-            		if(! plsmove)
-            		{
-            			Clock.yield();
-            			continue;
+            		// Plant on a 5 x 5 grid
+        			MapLocation treeSpot = gridLoc.add(Direction.getSouth(), 2);
+            		if(newLocationRequest ||
+            				(rc.canSenseAllOfCircle(gridLoc,1) && rc.isCircleOccupiedExceptByThisRobot(gridLoc, 1)) ||
+            				(rc.canSenseLocation(treeSpot) && rc.isLocationOccupiedByTree(treeSpot))) {
+            			// need new location!
+            			System.out.println(gridLoc);
+            			gridLoc = gridLoc.translate(5 * (1 - (int) (Math.random() * 3)), 5 * (1 - (int) (Math.random() * 3)));
+            			System.out.println(gridLoc);
+            			newLocationRequest = false;
             		}
             		
-            		// Plant on a 5 x 5 grid
+            		if(rc.canSenseAllOfCircle(gridLoc, 1))
+            		{
+            			if(rc.onTheMap(gridLoc, 1))
+            			{
+            				rc.setIndicatorDot(gridLoc, 0, 0, 0);
+            			}
+            			else
+            			{
+            				// TODO reset if not on the map
+            				newLocationRequest = true;
+            			}
+            		}
+            		      		
             		if(rc.canMove(gridLoc))
             		{
             			rc.move(gridLoc);
             			if(rc.getLocation().equals(gridLoc))
                 		{
-            				plsmove = false;
-//            				if(rc.canPlantTree(Direction.getWest()))
-//            				{
-//            					System.out.println("planting on" + gridLoc);
-//            					rc.plantTree(Direction.getWest());
-//            				}
+            				if(rc.isBuildReady() && rc.hasTreeBuildRequirements())
+            				{
+            					if(rc.canPlantTree(Direction.getSouth()))
+                				{
+                					System.out.println("planting on" + gridLoc);
+                					rc.plantTree(Direction.getSouth());
+                				}
+            					else
+                				{
+            						System.out.println("requesting new location");
+                					newLocationRequest = true;
+                				}
+            				}
+            				
                 		}
             		}
             		else
@@ -166,7 +191,6 @@ public class RobotPlayer {
                 		}
             		}
             		
-            		
             	}
             	
             	// tree maintenance
@@ -178,8 +202,6 @@ public class RobotPlayer {
 						rc.water(t.ID);
 					}
 				}
-				
-				
 
             	Clock.yield();
             } catch (Exception e) {
